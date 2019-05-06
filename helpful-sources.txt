@@ -1,0 +1,2 @@
+Used this to find the length of an object to find Rotten Tomatoes Ratings
+https://stackoverflow.com/questions/5223/length-of-a-javascript-object
