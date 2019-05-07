@@ -1,15 +1,15 @@
-// require("dotenv").config();
+require("dotenv").config();
 
 var keys = require("./keys.js");
 
-var id = 'fd863a46654b496ca97f026cd8497f9c';
-var secret = 'f7ede7d989924de99ace93f709e74ee3';
+console.log(keys);
 
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify({
-  id: id,
-  secret: secret
+  id: keys.spotify.id,
+  secret: keys.spotify.secret,
 });
+
 
 
 
@@ -24,7 +24,6 @@ var request = require("request");
 // ! concert-this
 // ! spotify-this-song
 // ! movie-this
-// ! do-what-it-saysls
 var callSpotify = function () {
   spotify
     .search({
