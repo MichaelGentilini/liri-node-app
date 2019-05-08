@@ -9,7 +9,6 @@ var axios = require("axios");
 // var circular = require('circular.js');
 var moment = require('moment');
 
-
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify({
   id: keys.spotify.id,
@@ -24,7 +23,6 @@ var spotify = new Spotify({
 // ! concert-this
 // ! spotify-this-song
 // ! movie-this
-// ! do-what-it-saysls
 var callSpotify = function () {
   spotify
     .search({
