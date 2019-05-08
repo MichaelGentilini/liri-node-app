@@ -41,12 +41,14 @@ var callSpotify = function () {
       console.log("Song Name: " + song);
       console.log("Album: " + album + "\n\n");
       console.log("Listen here: " + preview);
+      console.log('-----------------------------------------\n');
     })
     .catch(function (err) {
       return console.log('Error occurred: ' + err);
     });
 };
 
+callSpotify();
 // ? Use AXIOS for Bands In Town
 
 // * Name of the venue
