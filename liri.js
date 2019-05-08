@@ -1,20 +1,20 @@
-// require("dotenv").config();
+require("dotenv").config();
 
+//! use this for Spotify keys
 var keys = require("./keys.js");
 
-var id = 'fd863a46654b496ca97f026cd8497f9c';
-var secret = 'f7ede7d989924de99ace93f709e74ee3';
+//! This is needed for Bands In Town and OMDB
+var axios = require("axios");
+//! This is needed in order to access the data from the Bands In Town API
+// var circular = require('circular.js');
+var moment = require('moment');
+
 
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify({
-  id: id,
-  secret: secret
+  id: keys.spotify.id,
+  secret: keys.spotify.secret
 });
-
-
-
-var axios = require("axios");
-var request = require("request");
 
 // 
 // ? Assignment Link: https://smu.bootcampcontent.com/SMU-Coding-Bootcamp/SMDA201902FSF4/blob/master/01-Class-Content/10-nodejs/02-Homework/Instructions/homework_instructions.md
@@ -48,89 +48,31 @@ var callSpotify = function () {
       return console.log('Error occurred: ' + err);
     });
 };
-// ? Use AXIOS with OMDB
 
-var movie = 'Terminator';
+// ? Use AXIOS for Bands In Town
 
+// * Name of the venue
+// * Venue location
+// * Date of the Event (use moment to format this as "MM/DD/YYYY")
+
+var artistName = 'shawn mendes';
 axios
-  .get("http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy")
+  .get("https://rest.bandsintown.com/artists/" + artistName + "/events?app_id=codingbootcamp")
   .then(
-    function (response) {
-      var imdb = response.data;
+    function (data) {
+      var concert = data.data[0];
+      // console.log("concert: " + JSON.stringify(concert, null, 2));
+      var concertDate = JSON.parse(JSON.stringify(concert.datetime, null, 2).trim());
 
-      console.log("Title: " + imdb.Title);
-      console.log("Plot: " + imdb.Plot);
-      console.log("Starring: " + imdb.Actors);
-      console.log("Year: " + imdb.Year);
-      console.log("IMDB Rating: " + imdb.imdbRating);
-      console.log("Country of Production: " + imdb.Country);
-      console.log("Language: " + imdb.Language);
-      console.log('-------------------------')
+      // console.log("concert Info: " + JSON.stringify(concert, null, 2));
+      console.log("\tNext Concert For " + concert.lineup);
+      console.log('-----------------------------------------\n');
+      console.log("Venue: \t\t" + JSON.parse(JSON.stringify(concert.venue.name, null, 2).trim()));
+      console.log("Location: \t" + JSON.parse(JSON.stringify(concert.venue.city, null, 2).trim()) + ", " + JSON.parse(JSON.stringify(concert.venue.region, null, 2).trim()) + ", " + JSON.parse(JSON.stringify(concert.venue.country, null, 2).trim()));
+      console.log("Date: \t\t" + moment(concertDate).subtract(10, 'days').calendar());
+      console.log("Buy Tickets at: \t" + JSON.parse(JSON.stringify(concert.offers[0].url, null, 2).trim()));
 
-      // ? Not sure how to access this
-      // console.log("let's access the ratings" + JSON.stringify(imdb.Ratings['Source']));
-      var ratings = JSON.stringify(imdb.Ratings);
-      console.log(ratings);
-
-
-      // Object.size = function (Imdb.Ratings) {
-      //   var size = 0,
-      //     key;
-      //   for (key in Imdb.Ratings) {
-      //     i(Imdb.Ratings.hasOwnProperty(key)) size++;
-      //   }
-      //   return size;
-      // }; // Get the size of an object
-      // var size = Object.size(myArray);
-
-
-      // console.log(size);
-
-      // var size = Object.keys(ratings).length;
-
-      // console.log("Length: " + size);
-      // console.log("ratings" + Object.entries(ratings));
-      // console.log("keys :" + Object.keys(imdb.Ratings));
-      // console.log("ratings: " + Object.entries(imdb.Ratings));
-
-
-      var propOwn = Object.getOwnPropertyNames(imdb.Ratings);
-      var ratingArray = [];
-      var ratingNumberArray = [];
-      // propOwn.length = propOwn.length - 1;
-      console.log("Length is: " + (propOwn.length - 1));
-      for (i = 0; i < propOwn.length - 1; i++) {
-        var rating = Object.values(imdb.Ratings[i].Source).join('');
-        var ratingNumber = Object.values(imdb.Ratings[i].Value).join('');
-        if (Object.values(imdb.Ratings[i].Source).join('') === 'Rotten Tomatoes') {
-          ratingArray.push(rating);
-          ratingNumberArray.push(ratingNumber);
-        } else {
-          console.log("Looks like it hasn't been rated by Rotten Tomatoes");
-        }
-        console.log(ratingArray);
-      }
-
-
-
-
-      if (ratingArray.indexOf('Rotten Tomatoes')) {
-        console.log('hello');
-      } else {
-        console.log("Looks like it hasn't been rated by Rotten Tomatoes");
-      }
-
-
-    }
-
-
-  );
-
-
-// * Year the movie came out.
-// * IMDB Rating of the movie.
-// * Rotten Tomatoes Rating of the movie.
-// * Country where the movie was produced.
-// * Language of the movie.
-// * Plot of the movie.
-// * Actors in the movie.
+    })
+  .catch(function (Error) {
+    console.log("We can't find any current concerts for this artist. Please try a different artist");
+  });
