@@ -1,42 +1,38 @@
-require("dotenv").config();
+// * all required modules
 
-//! use this for Spotify keys
-var keys = require("./keys.js");
+require("dotenv").config();
 
 //! This is needed for Bands In Town and OMDB
 var axios = require("axios");
-//! This is needed in order to access the data from the Bands In Town API
 
-// var omdb = require("./omdb");
-// console.log(omdb);
+//! This is needed for do-what-it-says
+var fs = require("fs");
 
+//! This is used to conver time
 var moment = require('moment');
 
+//! use this for Spotify
+var keys = require("./keys.js");
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify({
   id: keys.spotify.id,
   secret: keys.spotify.secret
 });
 
-// 
-// ? Assignment Link: https://smu.bootcampcontent.com/SMU-Coding-Bootcamp/SMDA201902FSF4/blob/master/01-Class-Content/10-nodejs/02-Homework/Instructions/homework_instructions.md
-
-// ? Make it so liri.js can take in one of the following commands:
-// Takes in all of the command line arguments
+// * Global Variables
 var inputString = process.argv;
-
-// ! concert-this
-// ! spotify-this-song
-// ! movie-this
 var userChoice = inputString[2];
 var searchTerm = process.argv.slice(3).join(" ");
-var searchLimit = 20;
+var searchLimit = 10;
+
+// ! Spotify (spotify-this-song) function
 var callSpotify = function () {
   spotify
     .search({
       type: 'track',
       query: searchTerm,
-      limit: searchLimit
+      limit: searchLimit,
+      album_type: 'single'
     })
     .then(function (data) {
       var song = data.tracks.items[0].name;
@@ -44,19 +40,19 @@ var callSpotify = function () {
       console.log("Versions of " + song);
       console.log('- - - - - - - - - - - - - - - - - - - -\n');
       for (i = 0; i < searchLimit; i++) {
-
         var music = data.tracks.items[i];
-        // console.log(music);
         var artist = music.artists[0].name;
         var song = music.name;
         var preview = music.preview_url;
         var album = music.album.name;
 
-
         console.log("Artist Name: \t" + artist);
         console.log("Album: \t\t" + album);
-        console.log("Listen here: \t" + preview);
-        // console.log('= = = = = = = = = = = = = = = = = = = =');
+        if (!preview) {
+          console.log("Listen here: \tLink unavailable at this time")
+        } else {
+          console.log("Listen here: \t" + preview);
+        }
         console.log('\n');
       }
     })
@@ -66,11 +62,7 @@ var callSpotify = function () {
     });
 };
 
-
-// ? For Bands In Town
-
-// var artistName = 'shawn mendes';
-
+// ! Bands in Town (concert-this) function
 function callBandsInTown() {
   axios
     .get("https://rest.bandsintown.com/artists/" + searchTerm + "/events?app_id=codingbootcamp")
@@ -93,7 +85,7 @@ function callBandsInTown() {
     });
 }
 
-// ! Bands in Town Axios Call
+// ! OMDB (movie-this) function
 var movieThis = function () {
   axios
     .get("http://www.omdbapi.com/?t=" + searchTerm + "&y=&plot=short&apikey=trilogy")
@@ -134,11 +126,11 @@ var movieThis = function () {
     });
 }
 
-
 // ? If then statement which  calls the various functions
 if (userChoice === 'spotify-this-song') {
   if (inputString[3]) {} else {
-    searchTerm = "The Sign";
+    searchTerm = 'the sign'; -
+    console.log("\n📣\tIf you can't choose a song, we suggest The Sign by Ace of Base!");
   }
   callSpotify();
 } else if ((userChoice === 'concert-this')) {
@@ -155,7 +147,29 @@ if (userChoice === 'spotify-this-song') {
   } else {
     movieThis();
   }
+} else if ((userChoice === 'do-what-it-says')) {
+  fs.readFile('random.txt', function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      searchTerm = data.toString().split(",").pop();
 
+      console.log(data.toString());
+
+      var searchType = data.toString().split(",");
+      if (searchType.indexOf('spotify')) {
+        callSpotify();
+      } else if (searchType.indexOf('movie')) {
+        movieThis();
+      } else if (searchType.indexOf('concert')) {
+
+        callBandsInTown();
+      } else {
+        console.log('We do not recognize this command');
+      }
+      searchTerm = data.toString().split(",").pop();
+    }
+  })
 } else {
-  console.log('\nplease enter: \n\tconcert-this, spotify-this-song or movie-this\nfollowed by:\n\tthe name of the artist, song, or movie.')
+  console.log('\nplease enter:\n\tconcert-this, spotify-this-song, movie-this, or do-what-it-says\nfollowed by:\n\tthe name of the artist, song, or movie.')
 }
