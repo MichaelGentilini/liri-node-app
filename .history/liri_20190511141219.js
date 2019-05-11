@@ -99,8 +99,7 @@ var runInquirer = function () {
         },
         type: "input",
         name: "searchTerm",
-        default: "the sign",
-        message: "Please enter name of song:\t\t"
+        message: "Please enter name of song:\t"
       },
       {
         when: function (answers) {
@@ -108,16 +107,15 @@ var runInquirer = function () {
         },
         type: "input",
         name: "searchTerm",
-        message: "Please enter name of band or artist:\t\t"
+        message: "Please enter name of band or artist:\t"
       }, {
         when: function (answers) {
           return answers.searchType === "Find movie info on OMDB";
         },
         type: "input",
         name: "searchTerm",
-        default: "Mr. Nobody",
-        message: "Please enter name of movie:\t\t"
-
+        message: "Please enter name of movie:\t",
+        // default: "Mr. Nobody"
       }
     ])
     .then(function (user) {
@@ -140,6 +138,8 @@ var runInquirer = function () {
         user.searchType === "Do whatever's in random.txt") {
         addToLog();
         doIt();
+        // } else {
+        //   console.log("Sorry, I couldn't find a song named " + user.searchTerm + " Try something else?");
       }
     })
     .catch(function (err) {

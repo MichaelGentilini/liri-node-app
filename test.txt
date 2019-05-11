@@ -1,0 +1,6 @@
+
+please enter:		concert-this, spotify-this-song, movie-this, or do-what-it-says
+
+followed by:		the name of the artist, song, or movie. 
+
+👋  If you want to save a few key strokes, try entering node liri inquirer 👋

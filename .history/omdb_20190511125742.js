@@ -1,5 +1,7 @@
+// ? Use AXIOS with OMDB
 var axios = require("axios");
 
+// var searchTerm = 'gladiator';
 // ! OMDB (movie-this) function
 var movieThis = function (searchTerm) {
   axios

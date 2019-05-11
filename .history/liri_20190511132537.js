@@ -19,16 +19,21 @@ var inquirer = require("inquirer");
 
 var movieThis = require("./omdb");
 var callBandsInTown = require("./bands");
-var callSpotify = require("./spotify");
 
 //! use this for Spotify
-
+var keys = require("./keys.js");
+var Spotify = require("node-spotify-api");
+var spotify = new Spotify({
+  id: keys.spotify.id,
+  secret: keys.spotify.secret
+});
 
 // * Global Variables
 var inputString = process.argv;
 var userChoice = inputString[2];
 var searchTerm = process.argv.slice(3).join(" ");
 var searchLimit = 10;
+var today = new Date().toLocaleTimeString();
 var fullSearch = userChoice + " " + searchTerm;
 
 // ! This function logs user searches into log.txt
@@ -60,7 +65,7 @@ var doIt = function () {
         .split(",")
         .pop();
 
-      console.log(" ✔️  The text says: " + data.toString());
+      console.log("\n ✔️  The text says: " + data.toString());
 
       var searchType = data.toString().split(",");
       if (searchType.indexOf("spotify")) {
@@ -85,7 +90,7 @@ var runInquirer = function () {
     .prompt([{
         type: "rawlist",
         name: "searchType",
-        message: "Which can LIRI do for you?\t\t",
+        message: "Which can LIRI do for you?\t\t\t\t",
         choices: [
           "Find a song with Spotify",
           "Find a concert with Bands in Town",
@@ -99,8 +104,7 @@ var runInquirer = function () {
         },
         type: "input",
         name: "searchTerm",
-        default: "the sign",
-        message: "Please enter name of song:\t\t"
+        message: "Please enter name of song:\t"
       },
       {
         when: function (answers) {
@@ -108,16 +112,14 @@ var runInquirer = function () {
         },
         type: "input",
         name: "searchTerm",
-        message: "Please enter name of band or artist:\t\t"
+        message: "Please enter name of artist(s):\t"
       }, {
         when: function (answers) {
           return answers.searchType === "Find movie info on OMDB";
         },
         type: "input",
         name: "searchTerm",
-        default: "Mr. Nobody",
-        message: "Please enter name of movie:\t\t"
-
+        message: "Please enter name of movie:\t"
       }
     ])
     .then(function (user) {
@@ -140,6 +142,8 @@ var runInquirer = function () {
         user.searchType === "Do whatever's in random.txt") {
         addToLog();
         doIt();
+      } else {
+        console.log("Sorry, I couldn't find a song named " + user.searchTerm + " Try something else?");
       }
     })
     .catch(function (err) {

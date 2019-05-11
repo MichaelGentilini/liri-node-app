@@ -19,16 +19,21 @@ var inquirer = require("inquirer");
 
 var movieThis = require("./omdb");
 var callBandsInTown = require("./bands");
-var callSpotify = require("./spotify");
 
 //! use this for Spotify
-
+var keys = require("./keys.js");
+var Spotify = require("node-spotify-api");
+var spotify = new Spotify({
+  id: keys.spotify.id,
+  secret: keys.spotify.secret
+});
 
 // * Global Variables
 var inputString = process.argv;
 var userChoice = inputString[2];
 var searchTerm = process.argv.slice(3).join(" ");
 var searchLimit = 10;
+var today = new Date().toLocaleTimeString();
 var fullSearch = userChoice + " " + searchTerm;
 
 // ! This function logs user searches into log.txt
@@ -48,6 +53,47 @@ var addToLog = function () {
   });
 };
 
+// ! Spotify (spotify-this-song)
+var callSpotify = function () {
+  spotify
+    .search({
+      type: "track",
+      query: searchTerm,
+      limit: searchLimit,
+      album_type: "single"
+    })
+    .then(function (data) {
+      var song = data.tracks.items[0].name;
+      console.log("---------------------------------------------\n");
+      console.log("\tVersions of " + song);
+      console.log("\n---------------------------------------------\n");
+      for (i = 0; i < searchLimit; i++) {
+        var music = data.tracks.items[i];
+        var artist = music.artists[0].name;
+        var song = music.name;
+        var preview = music.preview_url;
+        var album = music.album.name;
+
+        console.log("Artist Name: \t" + artist);
+        console.log("Album: \t\t" + album);
+        if (!preview) {
+          console.log("Listen here: \tLink unavailable at this time");
+        } else {
+          console.log("Listen here: \t" + preview);
+        }
+        console.log("\n");
+      }
+    })
+    .catch(function (err) {
+      console.log(
+        "Sorry, I couldn't find anthing for " +
+        searchTerm +
+        "\nTry a different song!"
+      );
+      return err;
+    });
+};
+
 
 // ! do-what-it-says function
 var doIt = function () {
@@ -60,11 +106,11 @@ var doIt = function () {
         .split(",")
         .pop();
 
-      console.log(" ✔️  The text says: " + data.toString());
+      console.log("\n ✔️  The text says: " + data.toString());
 
       var searchType = data.toString().split(",");
       if (searchType.indexOf("spotify")) {
-        callSpotify(searchTerm, searchLimit);
+        callSpotify();
       } else if (searchType.indexOf("movie")) {
         movieThis(searchTerm);
       } else if (searchType.indexOf("concert")) {
@@ -85,7 +131,7 @@ var runInquirer = function () {
     .prompt([{
         type: "rawlist",
         name: "searchType",
-        message: "Which can LIRI do for you?\t\t",
+        message: "Which can LIRI do for you?\t\t\t\t",
         choices: [
           "Find a song with Spotify",
           "Find a concert with Bands in Town",
@@ -99,8 +145,7 @@ var runInquirer = function () {
         },
         type: "input",
         name: "searchTerm",
-        default: "the sign",
-        message: "Please enter name of song:\t\t"
+        message: "Please enter name of song:\t"
       },
       {
         when: function (answers) {
@@ -108,16 +153,14 @@ var runInquirer = function () {
         },
         type: "input",
         name: "searchTerm",
-        message: "Please enter name of band or artist:\t\t"
+        message: "Please enter name of artist(s):\t"
       }, {
         when: function (answers) {
           return answers.searchType === "Find movie info on OMDB";
         },
         type: "input",
         name: "searchTerm",
-        default: "Mr. Nobody",
-        message: "Please enter name of movie:\t\t"
-
+        message: "Please enter name of movie:\t"
       }
     ])
     .then(function (user) {
@@ -125,7 +168,7 @@ var runInquirer = function () {
       if (user.searchType === "Find a song with Spotify") {
         searchTerm = user.searchTerm;
         addToLog();
-        callSpotify(searchTerm, searchLimit);
+        callSpotify();
       } else if (
         user.searchType === "Find a concert with Bands in Town"
       ) {
@@ -140,6 +183,8 @@ var runInquirer = function () {
         user.searchType === "Do whatever's in random.txt") {
         addToLog();
         doIt();
+      } else {
+        console.log("Sorry, I couldn't find a song named " + user.searchTerm + " Try something else?");
       }
     })
     .catch(function (err) {
@@ -156,7 +201,7 @@ if (userChoice === "spotify-this-song") {
     );
   }
   addToLog();
-  callSpotify(searchTerm, searchLimit);
+  callSpotify();
 } else if (userChoice === "concert-this") {
   if (!inputString[3]) {
     console.log("Please enter an artist's name!");
