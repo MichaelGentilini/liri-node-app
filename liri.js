@@ -38,16 +38,14 @@ var addToLog = function () {
   var text =
     "ID: " +
     uniqid.time() +
-    "\nTime: " +
-    today +
-    "\nSearch: " +
+    "\tSearch: " +
     fullSearch +
     "\n\n";
   fs.appendFile("log.txt", text, function (err) {
     if (err) {
       console.log(err);
-    } else {
-      console.log("new log entry!");
+      // } else {
+      //   console.log("new log entry!");
     }
   });
 };
@@ -63,10 +61,9 @@ var callSpotify = function () {
     })
     .then(function (data) {
       var song = data.tracks.items[0].name;
-      // console.log(data.tracks.items[7]);
       console.log("---------------------------------------------\n");
       console.log("\tVersions of " + song);
-      console.log("\n---------------------------------------------\n");;
+      console.log("\n---------------------------------------------\n");
       for (i = 0; i < searchLimit; i++) {
         var music = data.tracks.items[i];
         var artist = music.artists[0].name;
@@ -86,7 +83,7 @@ var callSpotify = function () {
     })
     .catch(function (err) {
       console.log(
-        "Sorry, we couldn't find anthing for " +
+        "Sorry, I couldn't find anthing for " +
         searchTerm +
         "\nTry a different song!"
       );
@@ -104,7 +101,6 @@ function callBandsInTown() {
     )
     .then(function (data) {
       var concert = data.data[0];
-      // console.log("concert: " + JSON.stringify(concert, null, 2));
       var concertDate = JSON.parse(
         JSON.stringify(concert.datetime, null, 2).trim()
       );
@@ -137,7 +133,7 @@ function callBandsInTown() {
     })
     .catch(function (Error) {
       console.log(
-        "We can't find any current concerts for '" +
+        "I can't find any current concerts for '" +
         searchTerm +
         "'!\n\n Please enter a different artist"
       );
@@ -154,7 +150,7 @@ var movieThis = function () {
     )
     .then(function (response) {
       var imdb = response.data;
-      console.log("---------------------------------------------\n");
+      console.log("\n---------------------------------------------\n");
       console.log("\tMovie Info for " + imdb.Title);
       console.log("\n---------------------------------------------\n");
       console.log("Title: \t\t\t" + imdb.Title);
@@ -188,13 +184,13 @@ var movieThis = function () {
     })
     .catch(function (Error) {
       console.log(
-        "\n\n😟 😟   Looks like we can't find a movie with the title '" +
+        "\n\n😟 😟   I can't find a movie with the title '" +
         searchTerm +
         "😟 😟\n\n\tPlease enter a different movie"
       );
     });
 };
-
+// ! do-what-it-says function
 var doIt = function () {
   fs.readFile("random.txt", function (err, data) {
     if (err) {
@@ -205,7 +201,7 @@ var doIt = function () {
         .split(",")
         .pop();
 
-      console.log("The text says ----> " + data.toString());
+      console.log("\n ✔️  The text says: " + data.toString());
 
       var searchType = data.toString().split(",");
       if (searchType.indexOf("spotify")) {
@@ -215,7 +211,7 @@ var doIt = function () {
       } else if (searchType.indexOf("concert")) {
         callBandsInTown();
       } else {
-        console.log("We do not recognize this command");
+        console.log("I do not recognize this command");
       }
       searchTerm = data
         .toString()
@@ -223,48 +219,63 @@ var doIt = function () {
         .pop();
     }
   });
-}
+};
 
 var runInquirer = function () {
-  inquirer.prompt([{
-      type: "rawlist",
-      name: "searchType",
-      message: "Which can LIRI do for you?\t\t\t\t",
-      choices: ["Find a song with Spotify (spotify-this-song)", "Find a concert with Bands in Town (concert-this)", "Find movie info on OMDB (movie-this)", "Do whatever's in random.txt (do-what-it-says)"],
-    },
-    {
-      type: "input",
-      name: "searchTerm",
-      message: "Please enter name of song, artist(s), or movie:\t"
-    }
-  ]).then(function (user) {
-    // ? Spotify Search
-    if (user.searchType === 'Find a song with Spotify (spotify-this-song)') {
-      searchTerm = user.searchTerm;
-      callSpotify();
-    } else if (user.searchType === 'Find a concert with Bands in Town (concert-this)') {
-      searchTerm = user.searchTerm;
-      callBandsInTown();
-    } else if (user.searchType === 'Find movie info on OMDB (movie-this)') {
-      searchTerm = user.searchTerm;
-      movieThis();
-    } else if (user.searchType === "Do whatever's in random.txt (do-what-it-says)") {
-      // searchTerm = user.searchType;
-      doIt();
-    } else {
-      console.log('try something else?');
-    }
-  }).catch(function (err) {
-    console.log("It won't work if you don't type something in!");
-  });
-}
+  inquirer
+    .prompt([{
+        type: "rawlist",
+        name: "searchType",
+        message: "Which can LIRI do for you?\t\t\t\t",
+        choices: [
+          "Find a song with Spotify",
+          "Find a concert with Bands in Town",
+          "Find movie info on OMDB",
+          "Do whatever's in random.txt",
+        ]
+      },
+      {
+        type: "input",
+        name: "searchTerm",
+        message: "Please enter name of song, artist(s), or movie:\t"
+      }
+    ])
+    .then(function (user) {
+      // ? Spotify Search
+      if (user.searchType === "Find a song with Spotify") {
+        searchTerm = user.searchTerm;
+        addToLog();
+        callSpotify();
+      } else if (
+        user.searchType === "Find a concert with Bands in Town"
+      ) {
+        searchTerm = user.searchTerm;
+        addToLog();
+        callBandsInTown();
+      } else if (user.searchType === "Find movie info on OMDB") {
+        searchTerm = user.searchTerm;
+        addToLog();
+        movieThis();
+      } else if (
+        user.searchType === "Do whatever's in random.txt") {
+        // searchTerm = user.searchType;
+        addToLog();
+        doIt();
+      } else {
+        console.log("Sorry, I couldn't find a song named " + user.searchTerm + " Try something else?");
+      }
+    })
+    .catch(function (err) {
+      console.log("It won't work if you don't type something in!");
+    });
+};
 
 // ? If then statement which  calls the various functions
 if (userChoice === "spotify-this-song") {
   if (inputString[3]) {} else {
     searchTerm = "the sign"; -
     console.log(
-      "\n📣\tIf you can't choose a song, we suggest The Sign by Ace of Base!"
+      "\n📣\tIf you can't choose a song, I suggest The Sign by Ace of Base! It always makes me happy"
     );
   }
   addToLog();
@@ -279,7 +290,7 @@ if (userChoice === "spotify-this-song") {
 } else if (userChoice === "movie-this") {
   if (!inputString[3]) {
     searchTerm = "Mr.Nobody";
-    console.log("\n📣\tIf you can't choose a movie, we suggest Mr. Nobody!\n");
+    console.log("\n📣\tIf you can't choose a movie, I suggest Mr. Nobody!\n What a wonderful movie\n");
     addToLog();
     movieThis();
   } else {
@@ -292,6 +303,6 @@ if (userChoice === "spotify-this-song") {
   runInquirer();
 } else {
   console.log(
-    "\nplease enter:\n\tconcert-this, spotify-this-song, movie-this, or do-what-it-says\nfollowed by:\n\tthe name of the artist, song, or movie. \n\n*** If you don't want to type all of that out try entering inquirer"
+    "\nplease enter:\t\tconcert-this, spotify-this-song, movie-this, or do-what-it-says\n\nfollowed by:\t\tthe name of the artist, song, or movie. \n\n👋  If you want to save a few key strokes, try entering node liri inquirer 👋"
   );
 }
