@@ -2,14 +2,8 @@
 
 require("dotenv").config();
 
-//! This is needed for Bands In Town and OMDB
-var axios = require("axios");
-
 //! This is needed for do-what-it-says
 var fs = require("fs");
-
-//! This is used to conver time
-var moment = require("moment");
 
 //! this is an extra to assign a unique ID to the log
 var uniqid = require("uniqid");
@@ -17,7 +11,7 @@ var uniqid = require("uniqid");
 // ! added as an extra option for those that don't like command line so much
 var inquirer = require("inquirer");
 
-var movieThis = require("./omdb");
+var movieThis = require("./omdb.js");
 var callBandsInTown = require("./bands");
 var callSpotify = require("./spotify");
 
@@ -108,7 +102,7 @@ var runInquirer = function () {
         },
         type: "input",
         name: "searchTerm",
-        message: "Please enter name of band or artist:\t\t"
+        message: "Please enter name of band or artist:\t"
       }, {
         when: function (answers) {
           return answers.searchType === "Find movie info on OMDB";

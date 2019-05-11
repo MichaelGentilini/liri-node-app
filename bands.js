@@ -1,5 +1,9 @@
 var axios = require("axios");
 
+//! This is used to convert time
+var moment = require("moment");
+
+
 // ! Bands in Town (concert-this) function
 function callBandsInTown(searchTerm) {
   axios
@@ -41,7 +45,7 @@ function callBandsInTown(searchTerm) {
       );
     })
     .catch(function (Error) {
-      console.log(
+      console.log(Error,
         "I can't find any current concerts for '" +
         searchTerm +
         "'!\n\n Please enter a different artist"

@@ -2,8 +2,9 @@
 
 LIRI is a Language Interpretation and Recognition Interface. LIRI will be a command line node app that takes in parameters and gives you back data.
 
-[DEMO](htps://drive.google.com/file/d/1g7SUfKcP6B-7utGrUiZ0iy8Osx59_T9S/view)
+[Video Demo of original version](https://drive.google.com/file/d/1g7SUfKcP6B-7utGrUiZ0iy8Osx59_T9S/view "demo")
 
+[Video Demo of updated version](https://drive.google.com/file/d/12BS32BKP3DEbZyuneWZiW4ZA6w7-lcK_/view? "demo")
 
 ##liri.js can take in one of the following commands:
 
@@ -91,3 +92,7 @@ This is more user friendly and allows the user to run all of the above commands 
 ###movie-this example
 
 ![Inquirer-example](https://i.ibb.co/SPqxZyP/Inquirer2.jpg?raw=true)
+
+
+#  Find it on [GitHub](https://github.com/dallasappraiser/liri-node-app) and my [Portfolio](https://dallasappraiser.github.io/Portfolio/#work)
+ 
